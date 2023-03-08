@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Optional;
 
 /**
- * @author TRITRONIK-PC_10040
+ * @author kurakuraninja
  * @since 08/03/2023
  */
 

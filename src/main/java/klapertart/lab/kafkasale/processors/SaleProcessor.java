@@ -3,16 +3,16 @@ package klapertart.lab.kafkasale.processors;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import klapertart.lab.kafkasale.data.Sale;
 import klapertart.lab.kafkasale.data.Sales;
-import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.state.Stores;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerde;
-import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
 
 
 /**
@@ -28,14 +28,13 @@ public class SaleProcessor {
 
     @Autowired
     public void buildPipeline(StreamsBuilder streamsBuilder){
-        //Serde<Sale> saleSerde = jsonSerde(Sale.class);
-        Serde<Sales> salesSerde = jsonSerde(Sales.class);
         JsonSerde<Sale> saleJsonSerde = new JsonSerde<>(Sale.class);
+        JsonSerde<Sales> salesJsonSerde = new JsonSerde<>(Sales.class);
 
         KGroupedStream<String, Sale> salesByshop = streamsBuilder.stream("sale-topic", Consumed.with(Serdes.String(), saleJsonSerde)).groupByKey();
 
 
-        KStream<String, Sale> salesAgregate = salesByshop
+        KStream<String, Sale> saleAgregate = salesByshop
                 .aggregate(
                         new Initializer<Float>() {
                             @Override
@@ -56,16 +55,14 @@ public class SaleProcessor {
                 .toStream()
                 .mapValues(Sale::new);
 
-        salesAgregate
-                .to("agregated-sale-topic", Produced.with(Serdes.String(), saleJsonSerde));
+
+        //saleAgregate.to("agregated-sale-topic", Produced.with(Serdes.String(), salesJsonSerde));
+
+        LocalDateTime now = LocalDateTime.now();
+        KStream<String, Sales> salesKStream = saleAgregate
+                .map((k,v) -> KeyValue.pair(k, new Sales(v.getShopId(),v.getAmount(),now,now)));
+
+        salesKStream.to("agregated-sale-topic", Produced.with(Serdes.String(), salesJsonSerde));
+
     }
-
-    private <T> Serde<T> jsonSerde(Class<T> targetClass) {
-        return Serdes.serdeFrom(
-                new JsonSerializer<>(mapper),
-                new JsonDeserializer<>(targetClass, mapper, false)
-        );
-    }
-
-
 }
