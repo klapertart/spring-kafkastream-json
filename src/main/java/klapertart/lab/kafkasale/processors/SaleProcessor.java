@@ -10,6 +10,7 @@ import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.state.Stores;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.kafka.support.serializer.JsonSerde;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.stereotype.Component;
 
@@ -27,10 +28,11 @@ public class SaleProcessor {
 
     @Autowired
     public void buildPipeline(StreamsBuilder streamsBuilder){
-        Serde<Sale> saleSerde = jsonSerde(Sale.class);
+        //Serde<Sale> saleSerde = jsonSerde(Sale.class);
         Serde<Sales> salesSerde = jsonSerde(Sales.class);
+        JsonSerde<Sale> saleJsonSerde = new JsonSerde<>(Sale.class);
 
-        KGroupedStream<String, Sale> salesByshop = streamsBuilder.stream("sale-topic", Consumed.with(Serdes.String(), saleSerde)).groupByKey();
+        KGroupedStream<String, Sale> salesByshop = streamsBuilder.stream("sale-topic", Consumed.with(Serdes.String(), saleJsonSerde)).groupByKey();
 
 
         KStream<String, Sale> salesAgregate = salesByshop
@@ -55,7 +57,7 @@ public class SaleProcessor {
                 .mapValues(Sale::new);
 
         salesAgregate
-                .to("agregated-sale-topic", Produced.with(Serdes.String(), saleSerde));
+                .to("agregated-sale-topic", Produced.with(Serdes.String(), saleJsonSerde));
     }
 
     private <T> Serde<T> jsonSerde(Class<T> targetClass) {

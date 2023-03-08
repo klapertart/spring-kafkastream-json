@@ -39,7 +39,8 @@ public class KafkaStreamConfig {
         config.put(StreamsConfig.APPLICATION_ID_CONFIG,"app-sample");
         config.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG,"localhost:9092");
         config.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
-        config.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, new JsonSerde<>(Sale.class).getClass());
+        config.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
+        //config.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, new JsonSerde<>(Sale.class).getClass());
         config.put("default.deserialization.exception.handler", LogAndContinueExceptionHandler.class);
 
         return new KafkaStreamsConfiguration(config);

@@ -1,0 +1,17 @@
+SHOP01:{"shopId": "SHOP01","amount": 100.0}
+
+SHOP02:{"shopId": "SHOP02","amount": 200.0}
+
+SHOP01:{"shopId": "SHOP03","amount": 300.0}
+
+SHOP07:{"shopId": "SHOP04","amount": 400.0}
+
+SHOP06:{"shopId": "SHOP06","amount": 400.0}
+
+SHOP05:{"shopId": "SHOP05","amount": 400.0}
+
+SHOP04:{"shopId": "SHOP04","amount": 400.0}
+
+SHOP03:{"shopId": "SHOP03","amount": 400.0}
+
+SHOP08:{"shopId": "SHOP03","amount": 400.0}
