@@ -5,10 +5,8 @@ import klapertart.lab.kafkasale.data.Sale;
 import klapertart.lab.kafkasale.data.Sales;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.*;
-import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.Stores;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
@@ -56,24 +54,8 @@ public class SaleProcessor {
                 .toStream()
                 .mapValues(Sale::new);
 
-//        this::initialize,
-//                this::agregrateAmount,
-//                Materialized.<String, Float>as(Stores.persistentKeyValueStore("amount-sale"))
-//                        .withKeySerde(Serdes.String())
-//                        .withValueSerde(Serdes.Float())
-
-        //salesAgregate.print(Printed.toSysOut());
-
         salesAgregate
                 .to("agregated-sale-topic", Produced.with(Serdes.String(), saleSerde));
-    }
-
-    private Float initialize(){
-        return 0f;
-    }
-
-    private Float agregrateAmount(String key, Sale sale, Float agregratedAmount){
-        return agregratedAmount + sale.getAmount();
     }
 
     private <T> Serde<T> jsonSerde(Class<T> targetClass) {

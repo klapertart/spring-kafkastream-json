@@ -39,7 +39,6 @@ public class KafkaStreamConfig {
         config.put(StreamsConfig.APPLICATION_ID_CONFIG,"app-sample");
         config.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG,"localhost:9092");
         config.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
-        //config.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         config.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, new JsonSerde<>(Sale.class).getClass());
         config.put("default.deserialization.exception.handler", LogAndContinueExceptionHandler.class);
 
@@ -56,43 +55,4 @@ public class KafkaStreamConfig {
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         return objectMapper;
     }
-
-    /*
-    @Bean
-    public KStream<String, Sales> kStream(StreamsBuilder streamsBuilder){
-
-        Serde<Sale> saleSerde = commonUtil.jsonSerde(Sale.class);
-        Serde<Sales> salesSerde = commonUtil.jsonSerde(Sales.class);
-
-        KGroupedStream<String, Sale> salesByshop = streamsBuilder.stream("sale-topic", Consumed.with(Serdes.String(), saleSerde)).groupByKey();
-
-
-        KStream<String, Sales> salesAgregate = salesByshop
-                .aggregate(
-                        this::initialize,
-                        this::agregrateAmount,
-                        Materialized.<String, Float>as(Stores.persistentKeyValueStore("amount-sale"))
-                                .withKeySerde(Serdes.String())
-                                .withValueSerde(Serdes.Float())
-                )
-                .toStream()
-                .mapValues(Sales::new);
-
-
-        salesAgregate
-                .to("agregated-sale-topic",Produced.with(Serdes.String(), salesSerde));
-
-
-
-        return  salesAgregate;
-    }
-
-    private Float initialize(){
-        return 0f;
-    }
-
-    private Float agregrateAmount(String key, Sale sale, Float agregratedAmount){
-        return agregratedAmount + sale.getAmount();
-    }
-     */
 }
